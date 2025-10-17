@@ -1,17 +1,13 @@
 def fibonacci(n: int) -> int:
-  """
-  Calcula o n-ésimo número da sequência de Fibonacci.
+  """Calcula o n-ésimo número da sequência de Fibonacci.
 
-  A sequência de Fibonacci é definida como:
-  F(0) = 0
-  F(1) = 1
+  A sequência de Fibonacci é definida como:\n
+  F(0) = 0\n
+  F(1) = 1\n
   F(n) = F(n-1) + F(n-2), para n > 1
 
-  Parameters:
-    n (int): A posição desejada na sequência de Fibonacci (n >= 0)
-
-  Returns:
-    int: O valor do n-ésimo número de Fibonacci
+  :param n: int - A posição desejada na sequência de Fibonacci (n >= 0)
+  :return: int - O valor do n-ésimo número de Fibonacci
   """
   if(not(isinstance(n, int))):
     raise TypeError("n só aceita valores inteiros positivos")
