@@ -12,7 +12,7 @@ models.Base.metadata.create_all(bind=engine)
 import asyncio
 from contextlib import asynccontextmanager
 import random
-
+import json
 
 
 broadcast_task = None
@@ -28,9 +28,15 @@ async def lifespan(app: FastAPI):
 
   yield 
   broadcast_task.cancel()
+  manager.disconnect_all()
 
 # iniciando aplicação
 app = FastAPI(lifespan=lifespan)
+
+async def async_fibonacci(n: int) -> int:
+  """Rodar a função fibonacci de forma assíncrona"""
+  loop = asyncio.get_event_loop()
+  return await loop.run_in_executor(None, utils.fibonacci, n)
 
 @app.websocket("/ws")
 async def testa(websocket: WebSocket):
@@ -46,9 +52,14 @@ async def testa(websocket: WebSocket):
 
   try:
     while True:
-      data = await websocket.receive_text()
-      await websocket.send_text("Test")
-      await asyncio.sleep(1)
+      data: dict = await websocket.receive_text()
+      data = json.loads(data)
+      if(data.get('cmd') == 'fib'):
+        n = data.get('n')
+        if n:
+          result_fib = await async_fibonacci(n)
+          await websocket.send_text("fibonacci(%d) = %d" % (n, result_fib))
+      
       
   except WebSocketDisconnect:
     await manager.disconnect(socket_id)
