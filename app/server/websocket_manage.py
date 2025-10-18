@@ -4,6 +4,7 @@ from app.server.db import get_db
 from app.server.models import User
 from datetime import datetime
 import asyncio
+import json
 
 class WebSocketManager():
   """ Classe para gerenciamento dos clientes conectados no websocket """
@@ -24,6 +25,13 @@ class WebSocketManager():
         username = username,
         socket_id = socket_id,
         )
+      user_exists  = db.query(
+        db.query(User)
+        .filter(User.username == username, User.connected == True)
+        .exists()
+      ).scalar()
+      if user_exists:
+        raise Exception("usuário já está conectado")
       db.add(user)
       db.commit()
       db.refresh(user)
@@ -35,7 +43,6 @@ class WebSocketManager():
     with get_db() as db:
       user = db.query(User).where(User.socket_id==socket_id).first()
       if user:
-        print(user)
         user.connected = False
         user.last_seen = datetime.now()
         db.add(user)
@@ -43,8 +50,12 @@ class WebSocketManager():
   # async def send_personal_message(self, message: str, websocket: WebSocket):
   #   await websocket.send_text(message)
 
-  # async def broadcast(self, message: str):
-  #   for connection in self.active_connections:
-  #     await connection.send_text(message)
-  
+  async def broadcast(self, message: str):
+    async with self.lock:
+      connections = list(self.active_connections.values())
+    coros = [ws.send_text(message) for ws in connections]
+    if coros:
+      await asyncio.gather(*coros, return_exceptions=True)
+ 
 manager = WebSocketManager()
+
