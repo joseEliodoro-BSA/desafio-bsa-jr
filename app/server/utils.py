@@ -10,10 +10,10 @@ def fibonacci(n: int) -> int:
   :return: int - O valor do n-ésimo número de Fibonacci
   """
   if(not(isinstance(n, int))):
-    raise TypeError("n só aceita valores inteiros positivos")
+    raise TypeError("'n' só aceita valores inteiros positivos")
   
   if(n < 0):
-    raise ValueError("n não aceita valor negativo")
+    raise ValueError("'n' não aceita valor negativo")
 
   if n == 0: return 0
 

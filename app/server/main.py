@@ -57,9 +57,11 @@ async def testa(websocket: WebSocket):
       if(data.get('cmd') == 'fib'):
         n = data.get('n')
         if n:
-          result_fib = await async_fibonacci(n)
-          await websocket.send_text("fibonacci(%d) = %d" % (n, result_fib))
-      
+          try: 
+            result_fib = await async_fibonacci(n)
+            await websocket.send_text("fibonacci(%d) = %d" % (n, result_fib))
+          except TypeError as e:
+            await websocket.send_text("Erro: {}".format(e))
       
   except WebSocketDisconnect:
     await manager.disconnect(socket_id)
