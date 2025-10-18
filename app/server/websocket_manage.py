@@ -47,8 +47,15 @@ class WebSocketManager():
         user.last_seen = datetime.now()
         db.add(user)
         db.commit()
+      #self.active_connections.pop(socket_id)
   # async def send_personal_message(self, message: str, websocket: WebSocket):
   #   await websocket.send_text(message)
+  
+  async def disconnect_all(self):
+    async with self.lock:
+      self.active_connections.pop(socket_id)
+    for socket_id in self.active_connections.keys():
+      await self.disconnect(socket_id=socket_id)
 
   async def broadcast(self, message: str):
     async with self.lock:
