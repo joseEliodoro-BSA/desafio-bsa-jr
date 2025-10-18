@@ -59,3 +59,14 @@ class WebSocketManager():
  
 manager = WebSocketManager()
 
+async def broadcast_message_time():
+  """Envia uma mensage de broadcast com data e hora atual a cada segundo"""
+
+  while True:
+    try:
+      await manager.broadcast(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    except Exception:
+      pass
+    await asyncio.sleep(1)
+    
+         
