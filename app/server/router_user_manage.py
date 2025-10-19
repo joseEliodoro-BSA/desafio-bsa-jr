@@ -58,10 +58,17 @@ async def disconnect_user(username: str|None=None, socket_id: str|None = None):
     elif socket_id:
       user = await userService.disconnect_user(socket_id=socket_id)
 
-    await manager.disconnect_user(user.socket_id)
+    # await manager.send_private_message("{'message': deslogado}", user.socket_id)
+    await manager.disconnect(user.socket_id)
     
     return {"message": f"usuário {user.username} deslogado"}
   except:
     return HTTPException(400, {"message": "usuário não encontrado"})
   
-  
+@router.patch(
+"/disconnect/all", 
+tags=[Tags.LOG_CONNECTION], 
+description="Desconecta todos os usuário ativo",
+)
+async def disconnect_all():
+  await manager.disconnect_all()
