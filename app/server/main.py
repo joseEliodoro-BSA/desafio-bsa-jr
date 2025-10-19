@@ -1,22 +1,18 @@
     
-from fastapi import FastAPI, Depends, HTTPException, WebSocket, WebSocketDisconnect
-from sqlalchemy.orm import Session, joinedload
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 
-from typing import List
-from app.server.db import SessionLocal, engine
-from app.server.websocket_manage import manager, broadcast_message_time
-# Cria as tabelas no banco caso elas não existam
 import asyncio
 from contextlib import asynccontextmanager
 import random
 import json
 
-import app.server.utils as utils
+from app.server.websocket_manage import manager, broadcast_message_time
+from app.server.router_user_manage import router
 import app.server.models as models
-from app.server.service import userService
-from app.server.schemas import UserSchema
-from typing import List
+from app.server.db import engine
+import app.server.utils as utils
 
+# Cria as tabelas no banco caso elas não existam
 models.Base.metadata.create_all(bind=engine)
 
 broadcast_task = None
@@ -37,11 +33,15 @@ async def lifespan(app: FastAPI):
 # iniciando aplicação
 app = FastAPI(lifespan=lifespan)
 
+app.include_router(router, prefix="/user")
+
 async def async_fibonacci(n: int) -> int:
   """Rodar a função fibonacci de forma assíncrona"""
   loop = asyncio.get_event_loop()
   return await loop.run_in_executor(None, utils.fibonacci, n)
 
+
+# Rota para receber comando de uma conexão estabelecida
 @app.websocket("/ws")
 async def testa(websocket: WebSocket):
   username = websocket.query_params.get("username")
@@ -72,53 +72,3 @@ async def testa(websocket: WebSocket):
   except WebSocketDisconnect:
     await manager.disconnect(socket_id)
   
-
-
-class Tags:
-  LOG_CONNECTION = "logs de conexão"
-
-@app.get(
-  "/users/", 
-  response_model=List[UserSchema], 
-  tags=[Tags.LOG_CONNECTION], 
-  description="Retorna logs de quando cada usuário se conectou"
-  )
-async def list_all_logs():
-  return await userService.find_users()
-
-@app.get(
-  "/users/connected", 
-  response_model=List[UserSchema],
-  description="Retorna logs de usuários com conexões ativa",
-  tags=[Tags.LOG_CONNECTION], 
-  )
-async def list_user_connections():
-  return await userService.find_users(True)
-
-@app.get(
-  "/users/disconnected", 
-  response_model=List[UserSchema],
-  tags=[Tags.LOG_CONNECTION], 
-  description="Retorna logs de usuários com conexões ativa",
-  )
-async def list_user_connections():
-  return await userService.find_users(False)
-
-@app.patch(
-  "/users/disconnect", 
-  tags=[Tags.LOG_CONNECTION], 
-  description="Desconecta usuário ativo",
-  )
-async def disconnect_user(username: str|None=None, socket_id: str|None = None):
-  user: models.User|None = None
-  try:
-    if username:
-      user =  await userService.disconnect_user(username=username)
-    elif socket_id:
-      user = await userService.disconnect_user(socket_id=socket_id)
-
-    await manager.disconnect_user(user.socket_id)
-    
-    return {"message": f"usuário {user.username} deslogado"}
-  except:
-    return HTTPException(400, {"message": "usuário não encontrado"})
