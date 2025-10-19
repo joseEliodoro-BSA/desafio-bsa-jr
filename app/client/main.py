@@ -5,7 +5,7 @@ import asyncio
 import websockets
 import json
 import sys
-
+import os
 from message import Message
 
 async def sender(ws: WebSocketClientProtocol, loop): 
@@ -22,9 +22,11 @@ async def sender(ws: WebSocketClientProtocol, loop):
       await ws.send(json.dumps({"cmd": "fib", "n": int(user_input)}))
       
   except ConnectionClosed as e:
-    print(Message.SERVER_DISCONNECTED)
+    print(Message.SERVER_DISCONNECTED +": "+ str(e))
+    os._exit(0)
   except Exception as e:
-    print(Message.UNEXPECTED_ERROR_SERVER)
+    print(Message.UNEXPECTED_ERROR_SERVER +": "+ str(e))
+    os._exit(0)
 
 async def receiver(ws: WebSocketClientProtocol):
   """Recebe recebe as mensagens vindas do servidor"""
@@ -32,9 +34,11 @@ async def receiver(ws: WebSocketClientProtocol):
     async for msg in ws:
       print(f"\rSERVIDOR: {msg}\nVocê: ", end="", flush=True)
   except ConnectionClosed as e:
-    print(Message.SERVER_DISCONNECTED)
+    print(Message.SERVER_DISCONNECTED +": "+ str(e))
+    os._exit(0)
   except Exception as e:
-    print(Message.UNEXPECTED_ERROR_SERVER)
+    print(Message.UNEXPECTED_ERROR_SERVER +": "+ str(e))
+    os._exit(0)
 
 async def client_connection(username: str = "client2"):
   url = "ws://localhost:8000/ws?username=%s"%username
@@ -44,7 +48,8 @@ async def client_connection(username: str = "client2"):
       
       await asyncio.gather(receiver(ws), sender(ws, loop))
   except Exception as e:
-    print(Message.CONNECT_ERROR +": "+ e)
+    print(Message.CONNECT_ERROR +": "+ str(e))
+    os._exit(0)
 
 
 if __name__ == "__main__":
