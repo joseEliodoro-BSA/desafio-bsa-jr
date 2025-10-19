@@ -1,10 +1,10 @@
 
 from app.server.db import get_db
 from app.server.models import User
-
+from typing import List
 class UserService:
   
-  async def find_users(self, connected=None):
+  async def find_users(self, connected=None) -> List[User]:
     with get_db() as db:
       
       if connected == False:
@@ -18,12 +18,12 @@ class UserService:
       user = db.query(User).filter(User.username == username, User.connected == True).first()
     return user
   
-  async def find_socketid_connected(self, socket_id):
+  async def find_socketid_connected(self, socket_id) -> List[User]:
     with get_db() as db:
       user = user = db.query(User).filter(User.socket_id == socket_id, User.connected == True).first()
     return user
   
-  async def disconnect_user(self, **kwargs):
+  async def disconnect_user(self, **kwargs) -> User:
     user = None
     if kwargs.get('username'):
       user = await self.find_username_connected(kwargs.get("username"))
