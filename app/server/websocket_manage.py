@@ -21,7 +21,6 @@ class WebSocketManager():
     
     with get_db() as db:
       user = User(
-        email = f'{username}@test.com',
         username = username,
         socket_id = socket_id,
         )
