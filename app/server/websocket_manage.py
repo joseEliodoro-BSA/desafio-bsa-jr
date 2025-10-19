@@ -21,6 +21,9 @@ class WebSocketManager():
       self.active_connections[socket_id] = websocket
     
     if await userService.find_username_connected(username):
+      await websocket.send_text('{"message": "Usuário já conectado"}')
+      self.active_connections.pop(socket_id)
+      await websocket.close()
       raise Exception({"message": "Usuário já conectado"})
     
     with get_db() as db:
@@ -45,12 +48,12 @@ class WebSocketManager():
         db.commit()
       #self.active_connections.pop(socket_id)
   
-  async def send_private_message(self, message: str, socket_id: str):
+  async def send_private_message(self, message: Dict, socket_id: str):
     if not self.active_connections.get(socket_id):
       raise Exception("'conexão inativa")
     if not await userService.find_socketid_connected(socket_id):
       raise Exception({"message": "Usuário nnão conectado"})
-    await self.active_connections.get(socket_id).send_text(message)
+    await self.active_connections.get(socket_id).send_text(json.dumps(message))
   
   async def disconnect_user(self, socket_id: str):
     if self.active_connections.get(socket_id):
