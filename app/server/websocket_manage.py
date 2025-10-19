@@ -57,14 +57,22 @@ class WebSocketManager():
       await self.active_connections.get(socket_id).close()
   
   async def disconnect_all(self):
-    async with self.lock:
-      self.active_connections.pop(socket_id)
-    for socket_id in self.active_connections.keys():
+    for socket_id in list(self.active_connections.keys()):
       await self.disconnect(socket_id=socket_id)
 
   async def broadcast(self, message: str):
+    
     async with self.lock:
+      users: User = await userService.find_users(True)
+      socket_ids = [user.socket_id for user in users]
+    
+      for socket_id in self.active_connections.keys():
+        if socket_id not in socket_ids:
+          self.active_connections.pop(socket_id)
+          
       connections = list(self.active_connections.values())
+      
+    
     coros = [ws.send_text(message) for ws in connections]
     if coros:
       await asyncio.gather(*coros, return_exceptions=True)
