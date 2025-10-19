@@ -5,6 +5,7 @@ from app.server.models import User
 from datetime import datetime
 import asyncio
 import json
+from app.server.service import userService
 
 class WebSocketManager():
   """ Classe para gerenciamento dos clientes conectados no websocket """
@@ -19,18 +20,14 @@ class WebSocketManager():
     async with self.lock:
       self.active_connections[socket_id] = websocket
     
+    if await userService.find_username_connected(username):
+      raise Exception({"message": "Usuário já conectado"})
+    
     with get_db() as db:
       user = User(
         username = username,
         socket_id = socket_id,
         )
-      user_exists  = db.query(
-        db.query(User)
-        .filter(User.username == username, User.connected == True)
-        .exists()
-      ).scalar()
-      if user_exists:
-        raise Exception("usuário já está conectado")
       db.add(user)
       db.commit()
       db.refresh(user)
@@ -47,8 +44,17 @@ class WebSocketManager():
         db.add(user)
         db.commit()
       #self.active_connections.pop(socket_id)
-  # async def send_personal_message(self, message: str, websocket: WebSocket):
-  #   await websocket.send_text(message)
+  
+  async def send_private_message(self, message: str, socket_id: str):
+    if not self.active_connections.get(socket_id):
+      raise Exception("'conexão inativa")
+    if not await userService.find_socketid_connected(socket_id):
+      raise Exception({"message": "Usuário nnão conectado"})
+    await self.active_connections.get(socket_id).send_text(message)
+  
+  async def disconnect_user(self, socket_id: str):
+    if self.active_connections.get(socket_id):
+      await self.active_connections.get(socket_id).close()
   
   async def disconnect_all(self):
     async with self.lock:
