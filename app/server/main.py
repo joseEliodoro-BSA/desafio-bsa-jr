@@ -1,11 +1,11 @@
     
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 
 import asyncio
 from contextlib import asynccontextmanager
 import random
 import json
-
+from uuid import uuid4
 from app.server.websocket_manage import manager, broadcast_message_time
 from app.server.router_user_manage import router
 import app.server.models as models
@@ -45,16 +45,17 @@ async def async_fibonacci(n: int) -> int:
 @app.websocket("/ws")
 async def testa(websocket: WebSocket):
   username = websocket.query_params.get("username")
-  socket_id = f"user-{random.randint(1,(10*100))}"
-  
-  # estabelecer conexão com o websocket
-  user = await manager.connect(
-    socket_id=socket_id, 
-    websocket=websocket, 
-    username=username
-  )
+  socket_id = str(uuid4())
 
+  # estabelecer conexão com o websocket
   try:
+    
+    user = await manager.connect(
+      socket_id=socket_id, 
+      websocket=websocket, 
+      username=username
+    )
+    
     while True:
       data: dict = await websocket.receive_text()
       data = json.loads(data)
@@ -68,7 +69,9 @@ async def testa(websocket: WebSocket):
           except TypeError as e:
             await manager.send_private_message("Erro: {}".format(e), user.socket_id)
             # await websocket.send_text("Erro: {}".format(e))
-      
+
   except WebSocketDisconnect:
     await manager.disconnect(socket_id)
   
+  except Exception as e:
+    return HTTPException(400, e)
