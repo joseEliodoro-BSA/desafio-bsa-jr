@@ -1,6 +1,6 @@
 
-from app.server.db import get_db
-from app.server.models import User
+from server.db import get_db
+from server.models import User
 from typing import List
 class UserService:
   

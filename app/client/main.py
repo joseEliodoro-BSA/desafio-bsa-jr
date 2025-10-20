@@ -6,6 +6,7 @@ import websockets
 import json
 import sys
 import os
+from uuid import uuid4
 from message import Message
 
 async def sender(ws: WebSocketClientProtocol, loop): 
@@ -48,15 +49,17 @@ async def client_connection(username: str = "client2"):
       
       await asyncio.gather(receiver(ws), sender(ws, loop))
   except Exception as e:
-    print(Message.CONNECT_ERROR +": "+ str(e))
+    #print(Message.CONNECT_ERROR(e))
     os._exit(0)
 
 
 if __name__ == "__main__":
+  print("INICIANDO CLIENTE")
   try:
     if len(sys.argv) > 1:
       asyncio.run(client_connection(sys.argv[1]))
     else:
-      asyncio.run(client_connection())
+      id = str(uuid4())
+      asyncio.run(client_connection(f"user-{id}"))
   except KeyboardInterrupt:
     print(Message.CLIENT_DISCONNECTED)

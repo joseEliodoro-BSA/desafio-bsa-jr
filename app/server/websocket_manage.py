@@ -1,11 +1,11 @@
 from fastapi import WebSocket
-from typing import Dict, List
-from app.server.db import get_db
-from app.server.models import User
+from typing import Dict
+from server.db import get_db
+from server.models import User
 from datetime import datetime
 import asyncio
 import json
-from app.server.service import userService
+from server.service import userService
 
 class WebSocketManager():
   """ Classe para gerenciamento dos clientes conectados no websocket """

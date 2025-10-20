@@ -3,14 +3,14 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 
 import asyncio
 from contextlib import asynccontextmanager
-import random
+
 import json
 from uuid import uuid4
-from app.server.websocket_manage import manager, broadcast_message_time
-from app.server.router_user_manage import router
-import app.server.models as models
-from app.server.db import engine
-import app.server.utils as utils
+from server.websocket_manage import manager, broadcast_message_time
+from server.router_user_manage import router
+import server.models as models
+from server.db import engine
+import server.utils as utils
 
 # Cria as tabelas no banco caso elas não existam
 models.Base.metadata.create_all(bind=engine)

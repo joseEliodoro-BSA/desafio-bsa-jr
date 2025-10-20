@@ -4,11 +4,11 @@ from fastapi import HTTPException
 
 from typing import List
 
-from app.server.websocket_manage import manager
 
-from app.server.models import User
-from app.server.service import userService
-from app.server.schemas import UserSchema
+from server.models import User
+from server.service import userService
+from server.schemas import UserSchema
+from server.websocket_manage import manager
 
 from fastapi import APIRouter
 

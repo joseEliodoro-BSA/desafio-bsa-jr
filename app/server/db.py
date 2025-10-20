@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
-from app.server.config import DATABASE_URL
+from server.config import DATABASE_URL
 from contextlib import contextmanager
 from typing import Iterator
 # DATABASE_URI = "postgresql://root:root@localhost:5432/desafio"
