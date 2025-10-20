@@ -61,11 +61,10 @@ $ python app/client/main.py nome_do_usuario
 ```
 4. Durante a execução, os valores digitados podem desaparecer momentaneamente do terminal conforme as mensagens de broadcast são exibidas. Não se preocupe, tudo que você digitar será armazenado em cache e enviado corretamente ao servidor ao pressionar Enter
 
-<div align="center">
-  <video src="/video.mp4" controls width="600">
-    Seu navegador não suporta o vídeo.
-  </video>
-</div>
+<p align="center">
+  <img src="video.gif" alt="Demonstração do projeto" />
+</p>
+
 
 ## Features
 
