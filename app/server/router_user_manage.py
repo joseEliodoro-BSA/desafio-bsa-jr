@@ -65,10 +65,10 @@ async def disconnect_user(username: str|None=None, socket_id: str|None = None):
   except:
     return HTTPException(400, {"message": "usuário não encontrado"})
   
-@router.patch(
-"/disconnect/all", 
-tags=[Tags.LOG_CONNECTION], 
-description="Desconecta todos os usuário ativo",
-)
-async def disconnect_all():
-  await manager.disconnect_all()
+# @router.patch(
+# "/disconnect/all", 
+# tags=[Tags.LOG_CONNECTION], 
+# description="Desconecta todos os usuário ativo",
+# )
+# async def disconnect_all():
+#   await manager.disconnect_all()
