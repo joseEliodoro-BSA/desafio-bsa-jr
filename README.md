@@ -37,7 +37,7 @@ tenha em sua máquina os seguintes sistemas:
 $ cd desafio-bsa-jr
 
 # Construa os containers
-$ docker compose --build  
+$ docker compose up --build  
 
 # Inicie os containers em segundo plano
 $ docker compose up -d          
